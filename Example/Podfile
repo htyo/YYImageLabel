@@ -3,6 +3,7 @@ use_frameworks!
 platform :ios, '10.0'
 
 target 'YYImageLabel_Example' do
+  pod 'Masonry'
   pod 'YYImageLabel', :path => '../'
 
   target 'YYImageLabel_Tests' do
@@ -11,3 +12,19 @@ target 'YYImageLabel_Example' do
     
   end
 end
+
+SDK does not contain 'libarclite' at the path '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/arc/libarclite_iphonesimulator.a'; try increasing the minimum deployment target
+
+
+#post_install do |installer|
+#  installer.pods_project.targets.each do |target|
+#    target.build_configurations.each do |config|
+#      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+#    end
+#    
+#    installer.pods_project.build_configurations.each do |config|
+#      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+#    end
+#
+#  end
+#end

@@ -1,16 +1,23 @@
 PODS:
-  - YYImageLabel (0.1.0)
+  - Masonry (1.1.0)
+  - YYImageLabel (0.0.1)
 
 DEPENDENCIES:
+  - Masonry
   - YYImageLabel (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - Masonry
 
 EXTERNAL SOURCES:
   YYImageLabel:
     :path: "../"
 
 SPEC CHECKSUMS:
-  YYImageLabel: 6334d6c935f14c83c25f5d98983280720304758a
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  YYImageLabel: 02f7d79b28c80928a697e22e3fd36a3b455e3379
 
-PODFILE CHECKSUM: 03d0579462275e6be79184dc5826bf88974d14b4
+PODFILE CHECKSUM: 0b189dbe3393eaae5c6375464103c707c289351c
 
 COCOAPODS: 1.16.2

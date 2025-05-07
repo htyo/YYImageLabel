@@ -7,6 +7,8 @@
 //
 
 #import "HTViewController.h"
+#import "YYImageLabel/YYImageLabel.h"
+#import "Masonry/Masonry.h"
 
 @interface HTViewController ()
 
@@ -17,13 +19,28 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+	
+    /// 图片在文字左边
+    YYImageLabel * imageLabelLeft = [[YYImageLabel alloc] initWithType:YYImageLabelStyleLeft];
+    imageLabelLeft.imageView.image = [UIImage imageNamed:@"11111"];
+    imageLabelLeft.text = @"图片在文字左边";
+    imageLabelLeft.textColor = UIColor.redColor;
+    [self.view addSubview:imageLabelLeft];
+    
+    [imageLabelLeft mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.offset(0.0);
+    }];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    
+    
+    
 }
 
 @end
