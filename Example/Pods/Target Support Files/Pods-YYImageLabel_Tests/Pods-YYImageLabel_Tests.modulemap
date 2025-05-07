@@ -1,0 +1,6 @@
+framework module Pods_YYImageLabel_Tests {
+  umbrella header "Pods-YYImageLabel_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}
