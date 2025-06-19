@@ -21,21 +21,23 @@ typedef NS_OPTIONS(NSUInteger, YYImageLabelStyle) {
 
 
 @interface YYImageLabel : UIView
-@property(weak,  nonatomic, readonly) UIImageView * imageView;
-@property(weak,  nonatomic, readonly) UIImageView * backgroundImageView;
+@property (strong, nonatomic, readonly) UIImageView * imageView;
+@property (strong, nonatomic, readonly) UIImageView * backgroundImageView;
 
-@property(assign, nonatomic) NSInteger numberOfLines;
-@property(copy,   nonatomic) NSString * text;
-@property(strong, nonatomic) UIFont * font;
-@property(strong, nonatomic) UIColor * textColor;
+@property (assign, nonatomic) YYImageLabelStyle  type;
+@property (assign,nonatomic) NSTextAlignment textAlignment;
+@property (assign, nonatomic) NSInteger numberOfLines;
+@property (assign, nonatomic) UIEdgeInsets contentEdgeInsets;
+@property (assign, nonatomic) CGFloat imagePadding;
 
-@property(assign, nonatomic) NSTextAlignment textAlignment;
-@property(assign, nonatomic) UIEdgeInsets contentEdgeInsets;
-@property(assign, nonatomic) CGFloat imagePadding;
+@property (copy,   nonatomic) NSString * text;
+@property (strong, nonatomic) UIFont * font;
+@property (strong, nonatomic) UIColor * textColor;
 
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
+
 - (instancetype)initWithType:(YYImageLabelStyle)type;
 - (void)setLabelContentHuggingPriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis;
 - (void)setLabelContentCompressionResistancePriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis;

@@ -8,14 +8,51 @@
 #import "YYImageLabel.h"
 
 @interface YYImageLabel ()
-@property (weak,   nonatomic) UIView * contentView;
-@property (weak,   nonatomic) UILabel * titleLabel;
-@property (weak,   nonatomic) UIImageView * imageView;
-@property (weak,   nonatomic) UIImageView * backgroundImageView;
-@property (assign, nonatomic) YYImageLabelStyle  type;
+@property (strong, nonatomic) UIView * contentView;
+@property (strong, nonatomic) UILabel * titleLabel;
+@property (strong, nonatomic) UIImageView * imageView;
+@property (strong, nonatomic) UIImageView * backgroundImageView;
 @end
 
 @implementation YYImageLabel
+
+- (UIImageView *)backgroundImageView {
+    if (!_backgroundImageView) {
+        _backgroundImageView = [[UIImageView alloc]init];
+        _backgroundImageView.userInteractionEnabled = YES;
+        _backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _backgroundImageView;
+}
+
+- (UIView *)contentView {
+    if (!_contentView) {
+        _contentView = [[UIView alloc] init];
+        _contentView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _contentView;
+}
+
+- (UIImageView *)imageView {
+    if (!_imageView) {
+        _imageView = [[UIImageView alloc]init];
+        _imageView.translatesAutoresizingMaskIntoConstraints = NO;
+        _imageView.contentMode = UIViewContentModeCenter;
+    }
+    return _imageView;
+}
+
+- (UILabel *)titleLabel {
+    if (!_titleLabel) {
+        _titleLabel= [[UILabel alloc] init];
+        [_titleLabel setContentHuggingPriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
+        [_titleLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
+        _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _titleLabel.font = [UIFont boldSystemFontOfSize:14.0];
+        _titleLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    return _titleLabel;
+}
 
 - (instancetype)initWithType:(YYImageLabelStyle)type {
     self = [super init];
@@ -29,35 +66,20 @@
     return self;
 }
 
-- (void) loadSubViews {
-    UIImageView * backgroundImageView = [[UIImageView alloc]init];
-    backgroundImageView.userInteractionEnabled = YES;
-    backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:backgroundImageView];
-    self.backgroundImageView = backgroundImageView;
+- (void)awakeFromNib{
+    [super awakeFromNib];
+    [self loadSubViews];
+}
 
-    
-    UIView * contentView = [[UIView alloc] init];
-    contentView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:contentView];
-    self.contentView = contentView;
-    
-    UIImageView * imageView = [[UIImageView alloc]init];
-    imageView.translatesAutoresizingMaskIntoConstraints = NO;
-    imageView.contentMode = UIViewContentModeCenter;
-    [contentView addSubview:imageView];
-    self.imageView = imageView;
-        
-    UILabel * titleLabel = [UILabel new];
-    [titleLabel setContentHuggingPriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
-    [titleLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
-    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    titleLabel.font = [UIFont boldSystemFontOfSize:14.0];
-    titleLabel.textAlignment = NSTextAlignmentCenter;
-    titleLabel.numberOfLines = self.numberOfLines;
-    [contentView addSubview:titleLabel];
-    self.titleLabel = titleLabel;
+- (void)loadSubViews {
+    [self addSubview:self.backgroundImageView];
 
+    [self addSubview:self.contentView];
+    
+    [self.contentView addSubview:self.imageView];
+    
+    self.titleLabel.numberOfLines = self.numberOfLines;
+    [self.contentView addSubview:self.titleLabel];
 }
 
 - (void)layoutSubviews{
@@ -169,9 +191,11 @@
         [self.titleLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
         [self.titleLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
     }
-    
 }
 
+-(void)setType:(YYImageLabelStyle)type{
+    _type = type;
+}
 
 - (void)setText:(NSString *)text {
     _text = text;
@@ -181,7 +205,6 @@
 - (void)setNumberOfLines:(NSInteger)numberOfLines {
     _numberOfLines = numberOfLines;
     self.titleLabel.numberOfLines = numberOfLines;
-//    [self layoutIfNeeded];
 }
 
 - (void)setFont:(UIFont *)font {
