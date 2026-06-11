@@ -7,186 +7,246 @@
 
 #import "YYImageLabel.h"
 
+static const CGFloat YYImageLabelDefaultPadding = 4.0;
+static void *YYImageLabelImageContext = &YYImageLabelImageContext;
+
 @interface YYImageLabel ()
-@property (weak,   nonatomic) UIView * contentView;
-@property (weak,   nonatomic) UILabel * titleLabel;
-@property (weak,   nonatomic) UIImageView * imageView;
-@property (weak,   nonatomic) UIImageView * backgroundImageView;
-@property (assign, nonatomic) YYImageLabelStyle  type;
+@property (strong, nonatomic) UIView *contentView;
+@property (strong, nonatomic) UILabel *titleLabel;
+@property (strong, nonatomic, readwrite) UIImageView *imageView;
+@property (strong, nonatomic, readwrite) UIImageView *backgroundImageView;
+@property (assign, nonatomic) YYImageLabelStyle type;
+@property (strong, nonatomic) NSArray<NSLayoutConstraint *> *edgeConstraints;
+@property (strong, nonatomic) NSArray<NSLayoutConstraint *> *centerConstraints;
+@property (strong, nonatomic) NSArray<NSLayoutConstraint *> *styleConstraints;
+@property (strong, nonatomic) NSLayoutConstraint *contentTopConstraint;
+@property (strong, nonatomic) NSLayoutConstraint *contentBottomConstraint;
+@property (strong, nonatomic) NSLayoutConstraint *contentLeadingConstraint;
+@property (strong, nonatomic) NSLayoutConstraint *contentTrailingConstraint;
 @end
 
 @implementation YYImageLabel
 
 - (instancetype)initWithType:(YYImageLabelStyle)type {
-    self = [super init];
+    self = [super initWithFrame:CGRectZero];
     if (self) {
-        self.numberOfLines = 1;
-        self.contentEdgeInsets = UIEdgeInsetsZero;
-        self.type = type;
-        self.imagePadding = 4.0;
+        _numberOfLines = 1;
+        _contentEdgeInsets = UIEdgeInsetsZero;
+        _type = type;
+        _imagePadding = YYImageLabelDefaultPadding;
+        _font = [UIFont boldSystemFontOfSize:14.0];
+        _textColor = UIColor.blackColor;
+        _textAlignment = NSTextAlignmentCenter;
         [self loadSubViews];
+        [self buildConstraints];
     }
     return self;
 }
 
-- (void) loadSubViews {
-    UIImageView * backgroundImageView = [[UIImageView alloc]init];
+- (void)dealloc {
+    [self.imageView removeObserver:self forKeyPath:@"image" context:YYImageLabelImageContext];
+}
+
+- (void)loadSubViews {
+    UIImageView *backgroundImageView = [[UIImageView alloc] init];
     backgroundImageView.userInteractionEnabled = YES;
     backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:backgroundImageView];
     self.backgroundImageView = backgroundImageView;
 
-    
-    UIView * contentView = [[UIView alloc] init];
+    UIView *contentView = [[UIView alloc] init];
     contentView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:contentView];
     self.contentView = contentView;
-    
-    UIImageView * imageView = [[UIImageView alloc]init];
+
+    UIImageView *imageView = [[UIImageView alloc] init];
     imageView.translatesAutoresizingMaskIntoConstraints = NO;
     imageView.contentMode = UIViewContentModeCenter;
+    [imageView addObserver:self forKeyPath:@"image" options:0 context:YYImageLabelImageContext];
     [contentView addSubview:imageView];
     self.imageView = imageView;
-        
-    UILabel * titleLabel = [UILabel new];
+
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    titleLabel.font = self.font;
+    titleLabel.textColor = self.textColor;
+    titleLabel.textAlignment = self.textAlignment;
+    titleLabel.numberOfLines = self.numberOfLines;
     [titleLabel setContentHuggingPriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
     [titleLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
-    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    titleLabel.font = [UIFont boldSystemFontOfSize:14.0];
-    titleLabel.textAlignment = NSTextAlignmentCenter;
-    titleLabel.numberOfLines = self.numberOfLines;
     [contentView addSubview:titleLabel];
     self.titleLabel = titleLabel;
-
 }
 
-- (void)layoutSubviews{
-    [super layoutSubviews];
-    
-    [self.backgroundImageView.topAnchor constraintEqualToAnchor:self.topAnchor constant:0.0].active = YES;
-    [self.backgroundImageView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:0.0].active = YES;
-    [self.backgroundImageView.leftAnchor constraintEqualToAnchor:self.leftAnchor constant:0.0].active = YES;
-    [self.backgroundImageView.rightAnchor constraintEqualToAnchor:self.rightAnchor constant:0.0].active = YES;
+- (void)buildConstraints {
+    [NSLayoutConstraint activateConstraints:@[
+        [self.backgroundImageView.topAnchor constraintEqualToAnchor:self.topAnchor],
+        [self.backgroundImageView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+        [self.backgroundImageView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+        [self.backgroundImageView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor]
+    ]];
 
-    [self.imageView.widthAnchor constraintEqualToConstant:self.imageView.image.size.width].active = YES;
-    
+    self.contentTopConstraint = [self.contentView.topAnchor constraintEqualToAnchor:self.topAnchor constant:self.contentEdgeInsets.top];
+    self.contentBottomConstraint = [self.contentView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-self.contentEdgeInsets.bottom];
+    self.contentLeadingConstraint = [self.contentView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:self.contentEdgeInsets.left];
+    self.contentTrailingConstraint = [self.contentView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-self.contentEdgeInsets.right];
+    self.edgeConstraints = @[
+        self.contentTopConstraint,
+        self.contentBottomConstraint,
+        self.contentLeadingConstraint,
+        self.contentTrailingConstraint
+    ];
+    self.centerConstraints = @[
+        [self.contentView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor],
+        [self.contentView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor]
+    ];
+
     if (self.type & YYImageLabelStyleCenter) {
-        [self.contentView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor constant:0.0].active = YES;
-        [self.contentView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor constant:0.0].active = YES;
+        [NSLayoutConstraint activateConstraints:self.centerConstraints];
     } else {
-        [self.contentView.topAnchor constraintEqualToAnchor:self.topAnchor constant:self.contentEdgeInsets.top].active = YES;
-        [self.contentView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-self.contentEdgeInsets.bottom].active = YES;
-        [self.contentView.leftAnchor constraintEqualToAnchor:self.leftAnchor constant:self.contentEdgeInsets.left].active = YES;
-        [self.contentView.rightAnchor constraintEqualToAnchor:self.rightAnchor constant:-self.contentEdgeInsets.right].active = YES;
+        [NSLayoutConstraint activateConstraints:self.edgeConstraints];
     }
 
-    if (self.type & YYImageLabelStyleLeft) {
-        [self.imageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor constant:0.0].active = YES;
-        [self.imageView.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        
-        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.titleLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-        [self.titleLabel.leftAnchor constraintEqualToAnchor:self.imageView.rightAnchor constant:self.imagePadding].active = YES;
-        
-        NSLayoutConstraint *titleLabelHeightConstraint = [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.heightAnchor];
-        titleLabelHeightConstraint.priority = UILayoutPriorityDefaultLow;
-        titleLabelHeightConstraint.active = YES;
-                
-        NSLayoutConstraint *imageViewHeightConstraint = [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.heightAnchor];
-        imageViewHeightConstraint.priority = UILayoutPriorityDefaultLow;
-        imageViewHeightConstraint.active = YES;
-    }
-    
-    if (self.type & YYImageLabelStyleRight) {
-        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.titleLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        
-        [self.imageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor constant:0.0].active = YES;
-        [self.imageView.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-        [self.imageView.leftAnchor constraintEqualToAnchor:self.titleLabel.rightAnchor constant:self.imagePadding].active = YES;
-        
-        NSLayoutConstraint *titleLabelHeightConstraint = [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.heightAnchor];
-        titleLabelHeightConstraint.priority = UILayoutPriorityDefaultLow;
-        titleLabelHeightConstraint.active = YES;
-                
-        NSLayoutConstraint *imageViewHeightConstraint = [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.heightAnchor];
-        imageViewHeightConstraint.priority = UILayoutPriorityDefaultLow;
-        imageViewHeightConstraint.active = YES;
-    }
-    
-    if (self.type & YYImageLabelStyleAbove) {
-        [self.imageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.imageView.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor constant:0.0].active = YES;
-
-        [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.titleLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        [self.titleLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-        
-        [self.titleLabel.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:self.imagePadding].active = YES;
-
-        NSLayoutConstraint *titleLabelWidthConstraint = [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.widthAnchor];
-        titleLabelWidthConstraint.priority = UILayoutPriorityDefaultLow;
-        titleLabelWidthConstraint.active = YES;
-                
-        NSLayoutConstraint *imageViewWidthConstraint = [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.widthAnchor];
-        imageViewWidthConstraint.priority = UILayoutPriorityDefaultLow;
-        imageViewWidthConstraint.active = YES;
-    }
-    
-    if (self.type & YYImageLabelStyleBelow) {
-        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.titleLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        [self.titleLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-        
-        [self.imageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.imageView.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor constant:0.0].active = YES;
-                
-        [self.imageView.topAnchor constraintEqualToAnchor:self.titleLabel.bottomAnchor constant:self.imagePadding].active = YES;
-
-        NSLayoutConstraint *titleLabelWidthConstraint = [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.widthAnchor];
-        titleLabelWidthConstraint.priority = UILayoutPriorityDefaultLow;
-        titleLabelWidthConstraint.active = YES;
-                
-        NSLayoutConstraint *imageViewWidthConstraint = [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.widthAnchor];
-        imageViewWidthConstraint.priority = UILayoutPriorityDefaultLow;
-        imageViewWidthConstraint.active = YES;
-    }
-    
-    if (self.type & YYImageLabelStyleOnlyImage) {
-        [self.titleLabel removeFromSuperview];
-        [self.imageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.imageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.imageView.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        [self.imageView.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-    }
-    
-    if (self.type & YYImageLabelStyleOnlyTitle) {
-        [self.imageView removeFromSuperview];
-        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:0.0].active = YES;
-        [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:0.0].active = YES;
-        [self.titleLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0.0].active = YES;
-        [self.titleLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0.0].active = YES;
-    }
-    
+    self.styleConstraints = [self constraintsForCurrentStyle];
+    [NSLayoutConstraint activateConstraints:self.styleConstraints];
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context {
+    if (context == YYImageLabelImageContext) {
+        [self invalidateIntrinsicContentSize];
+        [self setNeedsLayout];
+        return;
+    }
+
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+}
+
+- (NSArray<NSLayoutConstraint *> *)constraintsForCurrentStyle {
+    if (self.type & YYImageLabelStyleOnlyImage) {
+        self.titleLabel.hidden = YES;
+        return @[
+            [self.imageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.imageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+            [self.imageView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            [self.imageView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor]
+        ];
+    }
+
+    if (self.type & YYImageLabelStyleOnlyTitle) {
+        self.imageView.hidden = YES;
+        return @[
+            [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+            [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor]
+        ];
+    }
+
+    self.imageView.hidden = NO;
+    self.titleLabel.hidden = NO;
+
+    if (self.type & YYImageLabelStyleRight) {
+        return @[
+            [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+            [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            [self.imageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
+            [self.imageView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+            [self.imageView.leadingAnchor constraintEqualToAnchor:self.titleLabel.trailingAnchor constant:self.imagePadding],
+            [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.heightAnchor],
+            [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.heightAnchor]
+        ];
+    }
+
+    if (self.type & YYImageLabelStyleAbove) {
+        return @[
+            [self.imageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.imageView.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor],
+            [self.titleLabel.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:self.imagePadding],
+            [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+            [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+            [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.widthAnchor],
+            [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.widthAnchor]
+        ];
+    }
+
+    if (self.type & YYImageLabelStyleBelow) {
+        return @[
+            [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+            [self.imageView.topAnchor constraintEqualToAnchor:self.titleLabel.bottomAnchor constant:self.imagePadding],
+            [self.imageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+            [self.imageView.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor],
+            [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.widthAnchor],
+            [self.contentView.widthAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.widthAnchor]
+        ];
+    }
+
+    return @[
+        [self.imageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
+        [self.imageView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+        [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+        [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.imageView.trailingAnchor constant:self.imagePadding],
+        [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+        [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.titleLabel.heightAnchor],
+        [self.contentView.heightAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.heightAnchor]
+    ];
+}
+
+- (CGSize)intrinsicContentSize {
+    CGSize imageSize = self.imageView.hidden ? CGSizeZero : self.imageView.intrinsicContentSize;
+    if (imageSize.width == UIViewNoIntrinsicMetric || imageSize.height == UIViewNoIntrinsicMetric) {
+        imageSize = CGSizeZero;
+    }
+
+    CGSize titleSize = CGSizeZero;
+    if (!self.titleLabel.hidden && self.titleLabel.text.length > 0) {
+        CGFloat maxWidth = self.titleLabel.numberOfLines == 1 ? CGFLOAT_MAX : UIScreen.mainScreen.bounds.size.width;
+        titleSize = [self.titleLabel sizeThatFits:CGSizeMake(maxWidth, CGFLOAT_MAX)];
+    }
+
+    BOOL hasImage = imageSize.width > 0.0 && imageSize.height > 0.0;
+    BOOL hasTitle = titleSize.width > 0.0 && titleSize.height > 0.0;
+    CGFloat spacing = (hasImage && hasTitle) ? self.imagePadding : 0.0;
+    CGSize contentSize = CGSizeZero;
+
+    if (self.type & YYImageLabelStyleOnlyImage) {
+        contentSize = imageSize;
+    } else if (self.type & YYImageLabelStyleOnlyTitle) {
+        contentSize = titleSize;
+    } else if ((self.type & YYImageLabelStyleAbove) || (self.type & YYImageLabelStyleBelow)) {
+        contentSize = CGSizeMake(MAX(imageSize.width, titleSize.width), imageSize.height + spacing + titleSize.height);
+    } else {
+        contentSize = CGSizeMake(imageSize.width + spacing + titleSize.width, MAX(imageSize.height, titleSize.height));
+    }
+
+    contentSize.width += self.contentEdgeInsets.left + self.contentEdgeInsets.right;
+    contentSize.height += self.contentEdgeInsets.top + self.contentEdgeInsets.bottom;
+    return contentSize;
+}
 
 - (void)setText:(NSString *)text {
-    _text = text;
+    _text = [text copy];
     self.titleLabel.text = text;
+    [self invalidateIntrinsicContentSize];
 }
 
 - (void)setNumberOfLines:(NSInteger)numberOfLines {
     _numberOfLines = numberOfLines;
     self.titleLabel.numberOfLines = numberOfLines;
-//    [self layoutIfNeeded];
+    [self invalidateIntrinsicContentSize];
 }
 
 - (void)setFont:(UIFont *)font {
-    _font = font;
-    self.titleLabel.font = font;
+    _font = font ?: [UIFont boldSystemFontOfSize:14.0];
+    self.titleLabel.font = _font;
+    [self invalidateIntrinsicContentSize];
 }
 
 - (void)setTextAlignment:(NSTextAlignment)textAlignment {
@@ -195,7 +255,29 @@
 }
 
 - (void)setTextColor:(UIColor *)textColor {
-    self.titleLabel.textColor = textColor;
+    _textColor = textColor ?: UIColor.blackColor;
+    self.titleLabel.textColor = _textColor;
+}
+
+- (void)setContentEdgeInsets:(UIEdgeInsets)contentEdgeInsets {
+    _contentEdgeInsets = contentEdgeInsets;
+    self.contentTopConstraint.constant = contentEdgeInsets.top;
+    self.contentBottomConstraint.constant = -contentEdgeInsets.bottom;
+    self.contentLeadingConstraint.constant = contentEdgeInsets.left;
+    self.contentTrailingConstraint.constant = -contentEdgeInsets.right;
+    [self invalidateIntrinsicContentSize];
+}
+
+- (void)setImagePadding:(CGFloat)imagePadding {
+    if (_imagePadding == imagePadding) {
+        return;
+    }
+
+    _imagePadding = imagePadding;
+    [NSLayoutConstraint deactivateConstraints:self.styleConstraints];
+    self.styleConstraints = [self constraintsForCurrentStyle];
+    [NSLayoutConstraint activateConstraints:self.styleConstraints];
+    [self invalidateIntrinsicContentSize];
 }
 
 - (void)setLabelContentHuggingPriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis {

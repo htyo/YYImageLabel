@@ -1,8 +1,8 @@
 {
   "name": "YYImageLabel",
-  "version": "0.0.1",
-  "summary": "A short description of YYImageLabel.",
-  "description": "TODO: Add long description of the pod here.",
+  "version": "0.0.3",
+  "summary": "A lightweight UIView that lays out an image and text together.",
+  "description": "YYImageLabel is a lightweight UIKit view for presenting an image and title in common relative positions, including above, below, left, right, image-only, and title-only layouts.",
   "homepage": "https://github.com/htyo/YYImageLabel",
   "license": {
     "type": "MIT",
@@ -13,10 +13,10 @@
   },
   "source": {
     "git": "https://github.com/htyo/YYImageLabel.git",
-    "tag": "0.0.1"
+    "tag": "0.0.3"
   },
   "platforms": {
-    "ios": "10.0"
+    "ios": "12.0"
   },
   "source_files": "YYImageLabel/Classes/**/*"
 }

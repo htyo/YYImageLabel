@@ -21,11 +21,11 @@ typedef NS_OPTIONS(NSUInteger, YYImageLabelStyle) {
 
 
 @interface YYImageLabel : UIView
-@property(weak,  nonatomic, readonly) UIImageView * imageView;
-@property(weak,  nonatomic, readonly) UIImageView * backgroundImageView;
+@property(strong, nonatomic, readonly) UIImageView * imageView;
+@property(strong, nonatomic, readonly) UIImageView * backgroundImageView;
 
 @property(assign, nonatomic) NSInteger numberOfLines;
-@property(copy,   nonatomic) NSString * text;
+@property(copy,   nonatomic, nullable) NSString * text;
 @property(strong, nonatomic) UIFont * font;
 @property(strong, nonatomic) UIColor * textColor;
 

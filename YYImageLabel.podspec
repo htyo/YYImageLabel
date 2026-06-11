@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'YYImageLabel'
-  s.version          = '0.0.1'
-  s.summary          = 'A short description of YYImageLabel.'
+  s.version          = '0.0.3'
+  s.summary          = 'A lightweight UIView that lays out an image and text together.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+YYImageLabel is a lightweight UIKit view for presenting an image and title in common relative positions, including above, below, left, right, image-only, and title-only layouts.
                        DESC
 
   s.homepage         = 'https://github.com/htyo/YYImageLabel'
@@ -28,7 +28,7 @@ TODO: Add long description of the pod here.
   s.source           = { :git => 'https://github.com/htyo/YYImageLabel.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '12.0'
 
   s.source_files = 'YYImageLabel/Classes/**/*'
   

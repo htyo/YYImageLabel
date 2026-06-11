@@ -7,6 +7,7 @@
 //
 
 @import XCTest;
+#import "YYImageLabel/YYImageLabel.h"
 
 @interface Tests : XCTestCase
 
@@ -28,8 +29,16 @@
 
 - (void)testExample
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    YYImageLabel *label = [[YYImageLabel alloc] initWithType:YYImageLabelStyleLeft];
+    label.text = @"Title";
+    label.textColor = UIColor.redColor;
+    label.contentEdgeInsets = UIEdgeInsetsMake(1.0, 2.0, 3.0, 4.0);
+    label.imagePadding = 8.0;
+
+    XCTAssertEqualObjects(label.text, @"Title");
+    XCTAssertEqualObjects(label.textColor, UIColor.redColor);
+    XCTAssertEqual(label.imagePadding, 8.0);
+    XCTAssertTrue(label.intrinsicContentSize.width > 0.0);
 }
 
 @end
-
