@@ -34,9 +34,8 @@ typedef NS_OPTIONS(NSUInteger, YYImageLabelStyle) {
 @property(assign, nonatomic) UIEdgeInsets contentEdgeInsets;
 @property(assign, nonatomic) CGFloat imagePadding;
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
+- (instancetype)init;
+- (instancetype)initWithFrame:(CGRect)frame;
 - (instancetype)initWithType:(YYImageLabelStyle)type;
 - (void)setLabelContentHuggingPriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis;
 - (void)setLabelContentCompressionResistancePriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis;

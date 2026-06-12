@@ -61,4 +61,14 @@
     XCTAssertNoThrow([label layoutIfNeeded]);
 }
 
+- (void)testChangingTypeAfterDefaultInit
+{
+    YYImageLabel *label = [[YYImageLabel alloc] init];
+    label.text = @"Title";
+
+    XCTAssertNoThrow(label.type = YYImageLabelStyleOnlyTitle);
+    XCTAssertNoThrow([label layoutIfNeeded]);
+    XCTAssertTrue(label.intrinsicContentSize.width > 0.0);
+}
+
 @end

@@ -1,6 +1,6 @@
 PODS:
   - Masonry (1.1.0)
-  - YYImageLabel (0.0.4)
+  - YYImageLabel (0.0.5)
 
 DEPENDENCIES:
   - Masonry
@@ -16,7 +16,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
-  YYImageLabel: 520fbff68b54420bb517a5530a345974a5701070
+  YYImageLabel: 280c840b03d876e54c00cb282d260c07bb1f2afa
 
 PODFILE CHECKSUM: 9f1a4c8d411afd416a6ad2b35620d7c75e96ce57
 

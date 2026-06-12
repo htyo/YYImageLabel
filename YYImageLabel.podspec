@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'YYImageLabel'
-  s.version          = '0.0.4'
+  s.version          = '0.0.5'
   s.summary          = 'A lightweight UIView that lays out an image and text together.'
 
 # This description is used to generate tags and improve search results.
