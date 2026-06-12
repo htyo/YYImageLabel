@@ -29,6 +29,7 @@ typedef NS_OPTIONS(NSUInteger, YYImageLabelStyle) {
 @property(strong, nonatomic) UIFont * font;
 @property(strong, nonatomic) UIColor * textColor;
 
+@property(assign, nonatomic) YYImageLabelStyle type;
 @property(assign, nonatomic) NSTextAlignment textAlignment;
 @property(assign, nonatomic) UIEdgeInsets contentEdgeInsets;
 @property(assign, nonatomic) CGFloat imagePadding;

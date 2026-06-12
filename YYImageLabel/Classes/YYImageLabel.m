@@ -15,7 +15,6 @@ static void *YYImageLabelImageContext = &YYImageLabelImageContext;
 @property (strong, nonatomic) UILabel *titleLabel;
 @property (strong, nonatomic, readwrite) UIImageView *imageView;
 @property (strong, nonatomic, readwrite) UIImageView *backgroundImageView;
-@property (assign, nonatomic) YYImageLabelStyle type;
 @property (strong, nonatomic) NSArray<NSLayoutConstraint *> *edgeConstraints;
 @property (strong, nonatomic) NSArray<NSLayoutConstraint *> *centerConstraints;
 @property (strong, nonatomic) NSArray<NSLayoutConstraint *> *styleConstraints;
@@ -125,6 +124,9 @@ static void *YYImageLabelImageContext = &YYImageLabelImageContext;
 }
 
 - (NSArray<NSLayoutConstraint *> *)constraintsForCurrentStyle {
+    self.imageView.hidden = NO;
+    self.titleLabel.hidden = NO;
+
     if (self.type & YYImageLabelStyleOnlyImage) {
         self.titleLabel.hidden = YES;
         return @[
@@ -144,9 +146,6 @@ static void *YYImageLabelImageContext = &YYImageLabelImageContext;
             [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor]
         ];
     }
-
-    self.imageView.hidden = NO;
-    self.titleLabel.hidden = NO;
 
     if (self.type & YYImageLabelStyleRight) {
         return @[
@@ -259,6 +258,15 @@ static void *YYImageLabelImageContext = &YYImageLabelImageContext;
     self.titleLabel.textColor = _textColor;
 }
 
+- (void)setType:(YYImageLabelStyle)type {
+    if (_type == type) {
+        return;
+    }
+
+    _type = type;
+    [self updateLayoutForCurrentType];
+}
+
 - (void)setContentEdgeInsets:(UIEdgeInsets)contentEdgeInsets {
     _contentEdgeInsets = contentEdgeInsets;
     self.contentTopConstraint.constant = contentEdgeInsets.top;
@@ -274,10 +282,25 @@ static void *YYImageLabelImageContext = &YYImageLabelImageContext;
     }
 
     _imagePadding = imagePadding;
+    [self updateLayoutForCurrentType];
+}
+
+- (void)updateLayoutForCurrentType {
+    [NSLayoutConstraint deactivateConstraints:self.edgeConstraints];
+    [NSLayoutConstraint deactivateConstraints:self.centerConstraints];
     [NSLayoutConstraint deactivateConstraints:self.styleConstraints];
+
+    if (self.type & YYImageLabelStyleCenter) {
+        [NSLayoutConstraint activateConstraints:self.centerConstraints];
+    } else {
+        [NSLayoutConstraint activateConstraints:self.edgeConstraints];
+    }
+
     self.styleConstraints = [self constraintsForCurrentStyle];
     [NSLayoutConstraint activateConstraints:self.styleConstraints];
     [self invalidateIntrinsicContentSize];
+    [self setNeedsUpdateConstraints];
+    [self setNeedsLayout];
 }
 
 - (void)setLabelContentHuggingPriority:(UILayoutPriority)priority forAxis:(UILayoutConstraintAxis)axis {
